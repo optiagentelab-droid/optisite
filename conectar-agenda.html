@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conectar Agenda — OptiAgente</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      background: #ffffff;
+      color: #111;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    .logo-area img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+
+    .card {
+      max-width: 440px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    p.subtitle {
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    /* Botão preenchido (estilo do CTA principal do site) */
+    .btn-preenchido {
+      background: #111;
+      color: #fff;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.15s ease;
+    }
+
+    .btn-preenchido:hover { opacity: 0.85; }
+
+    .btn-preenchido:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .aviso {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #999;
+    }
+
+    .erro {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #d93025;
+      background: #fdecea;
+      padding: 12px 16px;
+      border-radius: 12px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-area">
+      <img src="logo.png" alt="Logotipo OptiAgente" />
+      OptiAgente
+    </div>
+  </header>
+
+  <main>
+    <div class="card">
+      <h1>Conectar sua Google Agenda</h1>
+      <p class="subtitle">
+        Autorize o OptiAgente a sincronizar sua agenda para automatizar os agendamentos direto pelo WhatsApp.
+      </p>
+
+      <button id="btnConectar" class="btn-preenchido">Conectar Agenda</button>
+
+      <p class="aviso">Você pode revogar esse acesso a qualquer momento pela sua Conta Google.</p>
+      <div id="mensagemErro" class="erro"></div>
+    </div>
+  </main>
+
+  <script>
+    // Client ID público do Google Cloud Console
+    const GOOGLE_CLIENT_ID = "399420673400-hjftmqmc0qn18lml43818eitajslp149.apps.googleusercontent.com";
+
+    // URL da Edge Function no Supabase
+    const REDIRECT_URI = "https://ajbjlbiszqpeocitrwlj.supabase.co/functions/v1/google-oauth-callback";
+
+    function getClinicaIdDaURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('clinica_id');
+    }
+
+    function conectarGoogleAgenda(clinicaId) {
+      const params = new URLSearchParams({
+        client_id: GOOGLE_CLIENT_ID,
+        redirect_uri: REDIRECT_URI,
+        response_type: "code",
+        scope: "https://www.googleapis.com/auth/calendar",
+        access_type: "offline",
+        prompt: "consent",
+        state: clinicaId,
+      });
+
+      window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+    }
+
+    const btn = document.getElementById('btnConectar');
+    const msgErro = document.getElementById('mensagemErro');
+    const clinicaId = getClinicaIdDaURL();
+
+    if (!clinicaId) {
+      btn.disabled = true;
+      msgErro.style.display = 'block';
+      msgErro.textContent = 'Link inválido: ID da clínica não encontrado. Entre em contato com o suporte do OptiAgente.';
+    } else {
+      btn.addEventListener('click', () => conectarGoogleAgenda(clinicaId));
+    }
+  </script>
+
+</body>
+</html>
