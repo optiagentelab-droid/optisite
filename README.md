@@ -64,7 +64,7 @@ python3 -m http.server 8000
 
 ## Contato
 
-Suporte: optiagente.lab@gmail.com
+Suporte: contato@optiagente.com.br
 
 ## Licença
 
